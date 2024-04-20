@@ -3,7 +3,7 @@
 __pycache__/
 
 # Ignore virtual environments
-env/
+.env
 venv/
 uploads/
 
