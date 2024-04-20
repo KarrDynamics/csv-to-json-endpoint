@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+
+        .scrollable-response {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Upload File</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="return uploadFile();">
+                            <div class="form-group">
+                                <label for="file">Choose File:</label>
+                                <input type="file" class="form-control-file" id="file" name="file" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">Upload</button>
+                        </form>
+                    </div>
+                    <!-- Success message block -->
+                    <div class="card-footer">
+                        <div class="alert alert-success" id="successMessage" style="display:none; padding-bottom;">
+                            File uploaded successfully. Your endpoint is located at: <a href="http://127.0.0.1:5000/json-endpoint" target="_blank">http://127.0.0.1:5000/json-endpoint</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Endpoint Test Block -->
+                <div id="endpointTestBlock" class="mt-4" style="display:none;">
+                    <h5>Test Your New Endpoint</h5>
+                    <p class="mb-3">Try out your new endpoint with the following example GET request:</p>
+                    <code>GET http://127.0.0.1:5000/json-endpoint</code>
+                    <div>
+                        <button class="btn btn-primary mt-2" onclick="tryEndpoint()">Try It Now</button>
+                    </div>
+                   
+
+                    <!-- JSON Response Block -->
+                    <div id="jsonResponseBlock" class="mt-4" style="display:none; padding-bottom: 100px;">
+                        <h6>JSON Response:</h6>
+                        <div class="scrollable-response">
+                            <pre id="jsonResponse"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function uploadFile() {
+            var formData = new FormData();
+            formData.append('file', document.getElementById('file').files[0]);
+
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('endpointTestBlock').style.display = 'block'; // Show the endpoint test block
+                },
+                error: function(error) {
+                    console.error('Error uploading file:', error);
+                }
+            });
+
+            // Prevent form submission default action
+            return false;
+        }
+
+        function tryEndpoint() {
+            $.ajax({
+                url: 'http://127.0.0.1:5000/json-endpoint',
+                type: 'GET',
+                success: function(response) {
+                    document.getElementById('jsonResponse').textContent = JSON.stringify(response, null, 2);
+                    document.getElementById('jsonResponseBlock').style.display = 'block'; // Show the JSON response block
+                },
+                error: function(error) {
+                    console.error('Error trying endpoint:', error);
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
