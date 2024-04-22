@@ -56,31 +56,58 @@ def upload_file():
         return jsonify({"error": f"An error occurred: {e}"}), 500
 
 
-@app.route('/json-endpoint', methods=['GET', 'POST'])
+@app.route('/json-endpoint', methods=['GET'])
 def json_endpoint():
-    if request.method == 'POST':
-        try:
-            # Load JSON from the uploaded file
-            json_file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'converted.json')
-            
-            if not os.path.exists(json_file_path):
-                return jsonify({"error": "File not found"}), 404
-            
-            with open(json_file_path, 'r') as json_file:
-                data = json.load(json_file)
-            
-            return jsonify(data), 200
-        
-        except Exception as e:
-            return jsonify({"error": f"An error occurred: {e}"}), 500
-    elif request.method == 'GET':
-        try:
-            # You can add code here to handle GET requests, for example:
-            with open(os.path.join(app.config['UPLOAD_FOLDER'], 'example.json'), 'r') as file:
-                data = json.load(file)
-            return jsonify(data), 200
-        
-        except FileNotFoundError:
+    print("json_endpoint function is called")  # Temporary debug print
+
+    try:
+        json_file_path = './uploads/converted.json'
+
+        if not os.path.exists(json_file_path):
             return jsonify({"error": "File not found"}), 404
-        except Exception as e:
-            return jsonify({"error": f"An error occurred: {e}"}), 500
+
+        with open(json_file_path, 'r') as json_file:
+            data = json.load(json_file)
+
+        # Get all query parameters from the request
+        query_params = request.args
+
+        # Filter data based on the provided query parameters
+        filtered_data = data
+        for key, value in query_params.items():
+            filtered_data = [item for item in filtered_data if item.get(key) == value]
+
+        return jsonify(filtered_data), 200
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
+
+
+@app.route('/json-endpoint', methods=['GET'])
+def get_filtered_data():
+    print("get_filtered_data function is called")  # Temporary debug print
+
+    try:
+        json_file_path = './uploads/converted.json'
+
+        if not os.path.exists(json_file_path):
+            return jsonify({"error": "File not found"}), 404
+
+        with open(json_file_path, 'r') as json_file:
+            data = json.load(json_file)
+
+        # Get query parameters
+        filters = {key.lower(): value for key, value in request.args.items()}
+
+        print(f"Received filters: {filters}")  # Debug print
+
+        # Filter data based on query parameters
+        filtered_data = [item for item in data if all(item.get(key) == value for key, value in filters.items())]
+
+        print(f"Filtered data count: {len(filtered_data)}")  # Debug print
+        print(f"Filtered data: {filtered_data}")  # Debug print
+
+        return jsonify(filtered_data), 200
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500

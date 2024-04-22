@@ -9,8 +9,49 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <style>
+        .about-section {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tool-section {
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-footer {
+            background-color: #f9f9f9;
+            border-top: 1px solid #ccc;
+            padding: 10px 20px;
+        }
+
+        .card-header {
+            background-color: #f9f9f9;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .scrollable-response {
@@ -21,6 +62,20 @@
             padding: 10px;
             background-color: #f9f9f9;
         }
+
+        .markup-request {
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+        }
+
+        /* Hide the right side content by default */
+        #endpointTestBlock {
+            display: none;
+        }
     </style>
 </head>
 
@@ -28,37 +83,78 @@
 
     <div class="container mt-5">
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Upload File</h4>
-                    </div>
-                    <div class="card-body">
-                        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="return uploadFile();">
-                            <div class="form-group">
-                                <label for="file">Choose File:</label>
-                                <input type="file" class="form-control-file" id="file" name="file" required>
+            <!-- About the Tool Section -->
+            <div class="col-md-4">
+                <div class="about-section">
+                    <h3>About the Tool</h3>
+                    <p>
+                        Upload your CSV file to convert it into a JSON endpoint making it easy to access your data for local endpoint testing.
+                    </p>
+                    <h4>Basic Use Cases:</h4>
+                    <ul>
+                        <li>Mocking Endpoints for Local Development</li>
+                        <li>Data Validation and Testing</li>
+                        <li>API Design and Prototyping</li>
+                    </ul>
+                </div>
+                <!-- Upload a CSV File Card -->
+                <div class="tool-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">Upload a CSV File</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="return uploadFile();">
+                                <div class="form-group">
+                                    <label for="file">Choose File: (Only CSV Supported)</label>
+                                    <input type="file" class="form-control-file" id="file" name="file" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">Upload</button>
+                            </form>
+                        </div>
+                        <!-- Success message block -->
+                        <div class="card-footer">
+                            <div class="alert alert-success" id="successMessage" style="display:none; padding-bottom;">
+                                File uploaded successfully. Your endpoint is located at: <a href="http://127.0.0.1:5000/json-endpoint" target="_blank">http://127.0.0.1:5000/json-endpoint</a>
                             </div>
-                            <button type="submit" class="btn btn-success">Upload</button>
-                        </form>
-                    </div>
-                    <!-- Success message block -->
-                    <div class="card-footer">
-                        <div class="alert alert-success" id="successMessage" style="display:none; padding-bottom;">
-                            File uploaded successfully. Your endpoint is located at: <a href="http://127.0.0.1:5000/json-endpoint" target="_blank">http://127.0.0.1:5000/json-endpoint</a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Endpoint Test Block -->
-                <div id="endpointTestBlock" class="mt-4" style="display:none;">
-                    <h5>Test Your New Endpoint</h5>
-                    <p class="mb-3">Try out your new endpoint with the following example GET request:</p>
-                    <code>GET http://127.0.0.1:5000/json-endpoint</code>
-                    <div>
-                        <button class="btn btn-primary mt-2" onclick="tryEndpoint()">Try It Now</button>
+            <!-- Tool Usage Section -->
+            <div class="col-md-8" id="endpointTestBlock">
+                <div class="tool-section">
+                    <div class="mt-5">
+                        <h5>How to Use Your New Endpoint</h5>
+                        <p>Now that you've uploaded your CSV file, you can start querying and filtering results using the following steps:</p>
+                        <ol>
+                            <li>Select a filter from the dropdown list.</li>
+                            <li>Click the "Populate Filter" button to see available values for the selected filter.</li>
+                            <li>Click the "Send GET Request" button to make a GET request and see the filtered results.</li>
+                        </ol>
                     </div>
-                   
+                    <!-- Available Filters Block -->
+                    <div id="availableFiltersBlock" class="mt-4">
+                        <h6>Available Filters:</h6>
+                        <select id="availableFilters" class="form-control">
+                            <!-- Options will be populated here -->
+                        </select>
+                        <div class="mt-2">
+                            <button class="btn btn-secondary" onclick="populateFilter()">Populate Filter</button>
+                        </div>
+                        <div id="selectedFilterBlock" class="mt-4" style="display:none;">
+                            <h6>Selected Filter:</h6>
+                            <p id="selectedFilterText"></p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary mt-2" onclick="tryEndpoint()">Send GET Request</button>
+                        </div>
+                        <div class="mt-3">
+                            <p><strong>The example request was:</strong></p>
+                            <pre id="exampleRequest" class="markup-request"></pre>
+                        </div>
+                    </div>
 
                     <!-- JSON Response Block -->
                     <div id="jsonResponseBlock" class="mt-4" style="display:none; padding-bottom: 100px;">
@@ -71,6 +167,16 @@
             </div>
         </div>
     </div>
+    <script>
+        function uploadFile() {
+            // Logic to handle file upload
+            // Assuming file upload is successful for demonstration
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('endpointTestBlock').style.display = 'block';
+            return false; // Prevent form submission
+        }
+    </script>
+
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -90,7 +196,7 @@
                 contentType: false,
                 success: function(response) {
                     document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('endpointTestBlock').style.display = 'block'; // Show the endpoint test block
+                    document.getElementById('endpointTestBlock').style.display = 'block';
                 },
                 error: function(error) {
                     console.error('Error uploading file:', error);
@@ -101,19 +207,87 @@
             return false;
         }
 
-        function tryEndpoint() {
+        function populateFilter() {
             $.ajax({
                 url: 'http://127.0.0.1:5000/json-endpoint',
                 type: 'GET',
                 success: function(response) {
-                    document.getElementById('jsonResponse').textContent = JSON.stringify(response, null, 2);
-                    document.getElementById('jsonResponseBlock').style.display = 'block'; // Show the JSON response block
+                    if (Array.isArray(response) && response.length > 0) {
+                        const availableFilters = Object.keys(response[0]);
+                        const filtersDropdown = document.getElementById('availableFilters');
+
+                        // Clear previous options
+                        filtersDropdown.innerHTML = '';
+
+                        // Populate dropdown with available filters
+                        availableFilters.forEach(filter => {
+                            const option = document.createElement('option');
+                            option.value = filter;
+                            option.textContent = filter;
+                            filtersDropdown.appendChild(option);
+                        });
+
+                        // Show the available filters block
+                        document.getElementById('availableFiltersBlock').style.display = 'block';
+                        document.getElementById('selectedFilterBlock').style.display = 'none'; // Hide selected filter block
+                        document.getElementById('jsonResponseBlock').style.display = 'none'; // Hide JSON response block
+                    } else {
+                        console.error('Invalid response format:', response);
+                    }
                 },
                 error: function(error) {
-                    console.error('Error trying endpoint:', error);
+                    console.error('Error fetching available filters:', error);
                 }
             });
         }
+        function tryEndpoint() {
+    const selectedFilter = document.getElementById('availableFilters').value;
+
+    // Reset previous results
+    document.getElementById('jsonResponse').textContent = ''; // Clear previous JSON response
+    document.getElementById('selectedFilterText').textContent = `${selectedFilter}`; // Update selected filter text
+    document.getElementById('exampleRequest').textContent = ''; // Clear example request
+
+    // Fetch a random value for the selected filter from the dataset
+    $.ajax({
+        url: 'http://127.0.0.1:5000/json-endpoint',
+        type: 'GET',
+        success: function(response) {
+            let randomValue;
+            for (let item of response) {
+                if (item[selectedFilter]) {
+                    randomValue = item[selectedFilter];
+                    break;
+                }
+            }
+
+            if (randomValue) {
+                document.getElementById('selectedFilterText').textContent += `=${randomValue}`;
+                
+                const exampleRequest = `http://127.0.0.1:5000/json-endpoint?${selectedFilter}=${randomValue}`;
+                document.getElementById('exampleRequest').textContent = `${exampleRequest}`;
+
+                $.ajax({
+                    url: exampleRequest,
+                    type: 'GET',
+                    success: function(filteredResponse) {
+                        document.getElementById('jsonResponse').textContent = JSON.stringify(filteredResponse, null, 2);
+                        document.getElementById('jsonResponseBlock').style.display = 'block'; // Show the JSON response block
+                    },
+                    error: function(error) {
+                        console.error('Error trying endpoint:', error);
+                    }
+                });
+            } else {
+                console.error(`No values found for filter: ${selectedFilter}`);
+            }
+        },
+        error: function(error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+}
+
     </script>
 
 </body>
